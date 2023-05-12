@@ -5,6 +5,7 @@ Brings over the webgpu spec into node, initially done to test compute shader cod
 ## Installation
 
 - cmake >= 3.19
+- [ninja](https://github.com/ninja-build/ninja/wiki/Pre-built-Ninja-packages)
 
 ## Usage
 
