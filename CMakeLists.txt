@@ -23,21 +23,24 @@ configure_file(${depdir}/dawn/scripts/standalone-with-node.gclient ${depdir}/daw
 execute_process(COMMAND ${depdir}/depot/gclient sync
   WORKING_DIRECTORY ${depdir}/dawn)
 
-set(DAWN_BUILD_NODE_BINDINGS ON)
-set(DAWN_BUILD_SAMPLES OFF)
-set(CMAKE_BUILD_TYPE Release)
-set(CMAKE_CONFIGURATION_TYPES Release)
+# set(DAWN_BUILD_NODE_BINDINGS ON)
+# set(DAWN_BUILD_SAMPLES OFF)
+# set(CMAKE_BUILD_TYPE Release)
+# set(CMAKE_CONFIGURATION_TYPES Release)
 
 add_custom_target(build-time-make-directory ALL
     COMMAND ${CMAKE_COMMAND} -E make_directory ${depdir}/dawn/out/)
 
 add_custom_target(build-dawn ALL 
-    COMMAND ${CMAKE_COMMAND} ../ -G "Ninja" -DDAWN_BUILD_NODE_BINDINGS=1 -DDAWN_BUILD_SAMPLES=0 -DCMAKE_BUILD_TYPE=Release
-    WORKING_DIRECTORY ${depdir}/dawn/out/)
+    COMMAND ${CMAKE_COMMAND} ../ -GNinja -DDAWN_BUILD_NODE_BINDINGS=1 -DDAWN_BUILD_SAMPLES=0 -DCMAKE_BUILD_TYPE=Release
+    WORKING_DIRECTORY ${depdir}/dawn/out/
+    DEPENDS build-time-make-directory)
 
 add_custom_target(build-dawn-node ALL
     COMMAND ${CMAKE_COMMAND} --build . --target dawn_node
-    WORKING_DIRECTORY ${depdir}/dawn/out/)
+    WORKING_DIRECTORY ${depdir}/dawn/out/
+    DEPENDS build-dawn)
 
 add_custom_target(move-dawn-node ALL
-    COMMAND ${CMAKE_COMMAND} -E copy ${depdir}/dawn/out/dawn.node ${CMAKE_SOURCE_DIR}/dawn.node)
+    COMMAND ${CMAKE_COMMAND} -E copy ${depdir}/dawn/out/dawn.node ${CMAKE_SOURCE_DIR}/dawn.node
+    DEPENDS build-dawn-node)
