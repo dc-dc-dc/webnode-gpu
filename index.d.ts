@@ -1,3 +1,3 @@
-declare module "nodegpu" {
+declare module "webnode-gpu" {
     export function create(): GPU
 }
