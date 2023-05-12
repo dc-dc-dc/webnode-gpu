@@ -3,6 +3,7 @@
     "version": "0.0.2",
     "description": "WebGPU bindings for Node.js using dawn",
     "author": "Diogo Da Cruz",
+    "types": "./index.d.ts",
     "keywords": [
         "dawn",
         "webgpu",
@@ -14,9 +15,7 @@
         "install": "cmake-js compile"
     },
     "devDependencies": {
+        "@webgpu/types": "^0.1.32",
         "cmake-js": "7.2.1"
-    },
-    "dependencies": {
-        "@webgpu/types": "^0.1.32"
     }
 }
