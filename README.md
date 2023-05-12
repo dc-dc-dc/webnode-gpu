@@ -2,6 +2,10 @@
 
 Brings over the webgpu spec into node, initially done to test compute shader code.
 
+## Installation
+
+- cmake >= 3.19
+
 ## Usage
 
 ```js
