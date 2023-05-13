@@ -5,6 +5,11 @@
     "description": "WebGPU bindings for Node.js using dawn",
     "author": "Diogo Da Cruz",
     "types": "./index.d.ts",
+    "repository": {
+        "url": "https://github.com/dc-dc-dc/webnode-gpu",
+        "type": "git"
+    },
+    "license": "APACHE V2",
     "keywords": [
         "dawn",
         "webgpu",

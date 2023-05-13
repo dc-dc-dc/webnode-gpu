@@ -17,22 +17,23 @@ function (fetchdep name repo commit)
 endfunction()
 
 fetchdep(dawn https://dawn.googlesource.com/dawn.git HEAD)
-fetchdep(depot https://chromium.googlesource.com/chromium/tools/depot_tools.git HEAD)
+# fetchdep(depot https://chromium.googlesource.com/chromium/tools/depot_tools.git HEAD)
 
 configure_file(${depdir}/dawn/scripts/standalone-with-node.gclient ${depdir}/dawn/.gclient COPYONLY)
-execute_process(COMMAND ${depdir}/depot/gclient sync
-  WORKING_DIRECTORY ${depdir}/dawn)
-
+add_custom_target(gclient ALL 
+    COMMAND gclient sync
+    WORKING_DIRECTORY ${depdir}/dawn)
 # set(DAWN_BUILD_NODE_BINDINGS ON)
 # set(DAWN_BUILD_SAMPLES OFF)
 # set(CMAKE_BUILD_TYPE Release)
 # set(CMAKE_CONFIGURATION_TYPES Release)
 
 add_custom_target(build-time-make-directory ALL
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${depdir}/dawn/out/)
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${depdir}/dawn/out/
+    DEPENDS gclient)
 
 add_custom_target(build-dawn ALL 
-    COMMAND ${CMAKE_COMMAND} ../ -GNinja -DDAWN_BUILD_NODE_BINDINGS=1 -DDAWN_BUILD_SAMPLES=0 -DCMAKE_BUILD_TYPE=Release
+    COMMAND ${CMAKE_COMMAND} ../ -GNinja -DDAWN_BUILD_NODE_BINDINGS=1 -DTINT_BUILD_SAMPLES=0 -DTINT_BUILD_TESTS=0 -DDAWN_BUILD_SAMPLES=0 -DCMAKE_BUILD_TYPE=Release
     WORKING_DIRECTORY ${depdir}/dawn/out/
     DEPENDS build-time-make-directory)
 
