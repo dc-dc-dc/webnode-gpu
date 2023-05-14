@@ -1,4 +1,4 @@
-import nodegpu from "webnode-gpu";
+import nodegpu from "../index.js";
 
 const gpu = nodegpu.create([]);
 const adapter = await gpu.requestAdapter();
