@@ -22,6 +22,20 @@ console.log(adapterInfo.description);
 
 ## Tested on
 
-- MacOS ✅
-- Windows ❌
-- Linux ❌
+Platform | Arch | Status
+--- | --- | ---
+MacOS | x64 | ✅
+MacOS | arm64 | ✅
+Linux | x64 | ✅
+Windows | x64 | ❌ 
+
+## Notes
+
+You may have to install the neccessary system packages for your os
+
+### Linux 
+
+```bash
+sudo apt-get update
+sudo apt-get install libvulkan-dev
+```
