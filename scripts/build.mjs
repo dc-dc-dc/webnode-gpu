@@ -58,6 +58,8 @@ log("Dawn", "cloned");
 log("Depot Tools", "cloning");
 await downloadPkg(depotDir, versions.depot_tools.repo, versions.depot_tools.version, false);
 log("Depot Tools", "cloned");
+const targetArch = process.env.TARGET_ARCH;
+const isMac = platform === "darwin";
 
 const sep = isWin ? `;` : ":";
 const depotIncludedPath = `${depotDir}${sep}${process.env.PATH}`
@@ -93,8 +95,9 @@ await aexec(`gclient sync --no-history -j${os.cpus().length} -vvv `,
     });
 log("Dawn", "installed dependencies");
 
-let cflags = "";
-let ldflags = "";
+ 
+let cflags = (isMac && targetArch) ? "-mmacosx-version-min=11.0" : "";
+let ldflags = (isMac && targetArch) ? "-mmacosx-version-min=11.0" : "";
 const flags = [
     `-S ${path.join(buildDir, "dawn")}`,
     `-B ${path.join(outDir, "dawn")}`,
@@ -104,7 +107,8 @@ const flags = [
     '-DDAWN_BUILD_NODE_BINDINGS=1',
     '-DTINT_BUILD_SAMPLES=0',
     '-DTINT_BUILD_TESTS=0',
-    '-DDAWN_BUILD_SAMPLES=0'
+    '-DDAWN_BUILD_SAMPLES=0',
+    targetArch ? '-DCMAKE_OSX_ARCHITECTURES=arm64' : ''
 ];
 
 log("Dawn", "building");

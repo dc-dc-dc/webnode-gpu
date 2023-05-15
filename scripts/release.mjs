@@ -7,9 +7,9 @@ import { pipeline } from "node:stream/promises";
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 const { platform, arch } = process;
-const targetArch = process.env.CC_ARCH || arch;
-const name = `dawn-v${pkg.version}-${platform}-${targetArch}.gz`;
 
+const targetArch = process.env.TARGET_ARCH || arch;
+const name = `dawn-v${pkg.version}-${platform}-${targetArch}.gz`;
 const root = path.resolve(__dirname, "../");
 const gzip = createGzip();
 const readStream = fs.createReadStream(path.resolve(root, "dawn.node"));
@@ -31,8 +31,10 @@ try {
 log("Gzip", "compressed");
 
 const gitHeaders = {
-    "Accept": "application/vnd.github.v3+json",
+    "Accept": "application/vnd.github+json",
+    "X-Github-Api-Version": "2022-11-28",
     "Authorization": `Bearer ${process.env.GITHUB_TOKEN}`,
+    "User-Agent": "@dc_dc_dc/webnode-gpu"
 }
 
 log("release", "fetching releases");
@@ -42,7 +44,7 @@ if (releaseReq.status != 200) {
 }
 const releaseData = await releaseReq.json();
 const release = releaseData.find((r) => r.tag_name === `v${pkg.version}`);
-console.log('release', release)
+
 if (!release) {
     throw new Error(`release not found with version v${pkg.version}`);
 }

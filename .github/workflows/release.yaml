@@ -12,6 +12,7 @@ jobs:
           - { name: "Linux", os: ubuntu-22.04 }
           - { name: "Windows", os: windows-2022 }
           - { name: "MacOS", os: macos-12 }
+          - { name: "MacOS (arm)", os: macos-12, arch: arm64 }
     runs-on: ${{ matrix.platform.os }}
     steps:
       - name: Checkout
@@ -47,6 +48,8 @@ jobs:
             libxi-dev \
             ninja-build
       - name: Build
+        env:
+          TARGET_ARCH: ${{ matrix.platform.arch }}
         run: npm run build
       - name: Create Release
         env:
