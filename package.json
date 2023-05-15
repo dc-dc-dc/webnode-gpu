@@ -1,6 +1,6 @@
 {
     "name": "webnode-gpu",
-    "version": "0.0.4a",
+    "version": "0.0.5",
     "main": "./index.js",
     "description": "WebGPU bindings for Node.js using dawn",
     "author": "Diogo Da Cruz",
