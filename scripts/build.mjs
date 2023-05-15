@@ -9,6 +9,17 @@ const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
 const { platform } = process;
 
+const versions = {
+    "dawn": {
+        "repo": "https://dawn.googlesource.com/dawn",
+        "version": "906fc9df206d668191e9660a16688e27eb3d97ce"
+    },
+    "depot_tools": {
+        "repo": "https://chromium.googlesource.com/chromium/tools/depot_tools.git",
+        "version": "a1e578320b09a600894b6b11bc4e7d5f31627c6c"
+    }
+};
+
 const root = path.resolve(__dirname, "../");
 const buildDir = path.resolve(root, "build");
 const outDir = path.resolve(root, "out");
@@ -39,10 +50,10 @@ async function downloadPkg(location, repo, commit, force = false) {
 
 // Download dawn and depot_tools
 log("Dawn", "cloning");
-await downloadPkg(path.join(buildDir, "dawn"), "https://dawn.googlesource.com/dawn", "906fc9df206d668191e9660a16688e27eb3d97ce", false);
+await downloadPkg(path.join(buildDir, "dawn"), versions.dawn.repo, versions.dawn.version, false);
 log("Dawn", "cloned");
 log("Depot Tools", "cloning");
-await downloadPkg(path.join(buildDir, "depot_tools"), "https://chromium.googlesource.com/chromium/tools/depot_tools.git", "HEAD", false);
+await downloadPkg(path.join(buildDir, "depot_tools"), versions.dawn.repo, versions.dawn.version, false);
 log("Depot Tools", "cloned");
 
 // Install dependencies
@@ -102,3 +113,4 @@ try {
     process.exit(1);
 }
 await fs.promises.copyFile(path.join(outDir, "dawn", "dawn.node"), path.join(root, "dawn.node"));
+log("build", "finished");

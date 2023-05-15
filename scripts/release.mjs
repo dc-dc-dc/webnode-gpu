@@ -15,6 +15,12 @@ const gzip = createGzip();
 const readStream = fs.createReadStream(path.resolve(root, "dawn.node"));
 const writeStream = fs.createWriteStream(path.resolve(root, name));
 
+function log(step, status) {
+    console.log(`[${step}] ${new Date().toISOString()} ${status}`);
+}
+
+log("Gzip", "compressing");
+
 try {
     await pipeline(readStream, gzip, writeStream);
 } catch (e) {
@@ -22,15 +28,29 @@ try {
     process.exit(1);
 }
 
+log("Gzip", "compressed");
+
 const gitHeaders = {
     "Accept": "application/vnd.github.v3+json",
     "Authorization": `Bearer ${process.env.GITHUB_TOKEN}`,
 }
 
+log("release", "fetching releases");
+const releaseReq = await fetch(`https://api.github.com/repos/dc-dc-dc/webnode-gpu/releases`, { headers: { ...gitHeaders } });
+if (releaseReq.status != 200) {
+    throw new Error(`release request unexpected status ${releaseReq.status} ${releaseReq.statusText}`);
+}
+const releaseData = await releaseReq.json();
+const release = releaseData.find((r) => r.tag_name === `v${pkg.version}`);
+console.log('release', release)
+if (!release) {
+    throw new Error(`release not found with version v${pkg.version}`);
+}
 const buff = await fs.promises.readFile(path.resolve(root, name));
 
-console.log(`[Upload] uploading ${name} to ${pkg.version}`);
-const res = await fetch(`https://api.github.com/repos/dc-dc-dc/webnode-gpu/releases/${pkg.version}/assets/?name=${name}`, {
+const assetURL = `https://uploads.github.com/repos/dc-dc-dc/webnode-gpu/releases/${release.id}/assets?name=${name}`
+log("upload", `starting upload ${name} to ${assetURL}`);
+const res = await fetch(assetURL, {
     method: "POST",
     headers: {
         ...gitHeaders,
@@ -39,8 +59,8 @@ const res = await fetch(`https://api.github.com/repos/dc-dc-dc/webnode-gpu/relea
     body: buff,
 });
 
-console.log(`[Upload] got status ${res.status} ${res.statusText}`)
+log("upload", `upload got status ${res.status} ${res.statusText}`)
 
-if (res.status !== 200) {
+if (res.status !== 201) {
     throw new Error(`unexpected status ${res.status} ${res.statusText}`);
 }
