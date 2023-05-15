@@ -17,15 +17,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - if: ${{ matrix.platform.name == 'Windows' }}
-        name: Install Dependencies
+        name: Install Windows Dependencies
+        shell: bash
+        env:
+          MSVC: C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.34.31938
+          WINSDK: C:/Program Files (x86)/Windows Kits/10
+          WINSDK_VERS: 10.0.22621.0
         run: |
+          echo "${{ env.MSVC }}/bin/Hostx64/x64" >> $GITHUB_PATH
+          echo "${{ env.WINSDK }}/bin/${{ env.WINSDK_VERS }}/x64" >> $GITHUB_PATH
+          LIB="${{ env.WINSDK }}/Lib/${{ env.WINSDK_VERS }}/um/x64;${{ env.WINSDK }}/Lib/${{ env.WINSDK_VERS }}/ucrt/x64;${{ env.MSVC }}/lib/x64"
+          echo "LIB=$LIB" >> $GITHUB_ENV
+          INCLUDE="${{ env.WINSDK }}/Include/${{ env.WINSDK_VERS }}/um;${{ env.WINSDK }}/Include/${{ env.WINSDK_VERS }}/shared;${{ env.WINSDK }}/Include/${{ env.WINSDK_VERS }}/winrt;${{ env.WINSDK }}/Include/${{ env.WINSDK_VERS }}/ucrt;${{ env.MSVC }}/include"
+          echo "INCLUDE=$INCLUDE" >> $GITHUB_ENV
           choco install ninja
       - if: ${{ matrix.platform.name == 'MacOS'}}
-        name: Install Dependencies
+        name: Install Mac Dependencies
         run: |
           brew install ninja
       - if: ${{ matrix.platform.name == 'Linux' }}
-        name: Install Dependencies
+        name: Install Linux Dependencies
         run: |
           sudo apt update
           sudo apt install -y \

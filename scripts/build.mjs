@@ -25,6 +25,7 @@ const buildDir = path.resolve(root, "build");
 const outDir = path.resolve(root, "out");
 const dawnDir = path.resolve(buildDir, "dawn");
 const depotDir = path.resolve(buildDir, "depot");
+const isWin = platform === "win32";
 
 function log(step, status) {
     console.log(`[${step}] ${new Date().toISOString()} ${status}`);
@@ -58,18 +59,34 @@ log("Depot Tools", "cloning");
 await downloadPkg(depotDir, versions.depot_tools.repo, versions.depot_tools.version, false);
 log("Depot Tools", "cloned");
 
+const sep = isWin ? `;` : ":";
+const depotIncludedPath = `${depotDir}${sep}${process.env.PATH}`
+if (isWin) {
+    // run windows to install neccessary tools
+    log("gclient", "starting windows dry run")
+    await aexec(`gclient`, {
+        cwd: depotDir,
+        env: {
+            ...process.env,
+            PATH: depotIncludedPath,
+            DEPOT_TOOLS_UPDATE: '0',
+            DEPOT_TOOLS_WIN_TOOLCHAIN: '0',
+        },
+    })
+    log("gclient", "finished windows dry run");
+}
+
 // Install dependencies
 await fs.promises.copyFile(path.join(buildDir, "dawn", "scripts", "standalone-with-node.gclient"), path.join(buildDir, "dawn", ".gclient"));
 
-const sep = platform == "win32" ? `;` : ":";
-log("Dawn", `installing dependencies`);
+log("Dawn", `installing dependencies ${sep}`);
 
-await aexec(`gclient sync --no-history -j${os.cpus().length} -vvv`,
+await aexec(`gclient sync --no-history -j${os.cpus().length} -vvv `,
     {
         cwd: dawnDir,
         env: {
             ...process.env,
-            PATH: `${depotDir}${sep}${process.env.PATH}`,
+            PATH: depotIncludedPath,
             DEPOT_TOOLS_UPDATE: '0',
             DEPOT_TOOLS_WIN_TOOLCHAIN: '0',
         }
