@@ -20,10 +20,9 @@
     "scripts": {
         "build": "node ./scripts/build.mjs",
         "release": "node ./scripts/release.mjs",
-        "install": "cmake-js build"
+        "install": "node ./scripts/install.mjs"
     },
     "devDependencies": {
-        "@webgpu/types": "^0.1.32",
-        "cmake-js": "7.2.1"
+        "@webgpu/types": "^0.1.32"
     }
 }
