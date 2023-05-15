@@ -16,6 +16,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - if: ${{ matrix.platform.name == 'Windows' }}
+        name: Install Dependencies
+        run: |
+          choco install ninja
       - if: ${{ matrix.platform.name == 'MacOS'}}
         name: Install Dependencies
         run: |

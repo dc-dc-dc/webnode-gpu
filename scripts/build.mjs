@@ -17,19 +17,19 @@ function log(step, status) {
     console.log(`[${step}] ${new Date().toISOString()} ${status}`);
 }
 
-async function downloadPkg(location, repo, commit, force=false) {
-    if(!force) {
-        const stat = await fs.promises.stat(location).catch(() => {});
-        if(stat) return;
+async function downloadPkg(location, repo, commit, force = false) {
+    if (!force) {
+        const stat = await fs.promises.stat(location).catch(() => { });
+        if (stat) return;
     }
-    await fs.promises.rm(location, { recursive: true }).catch(() => {}); 
+    await fs.promises.rm(location, { recursive: true }).catch(() => { });
     await fs.promises.mkdir(location, { recursive: true });
     const flags = commit == "HEAD" ? [] : [`git fetch --depth=1 origin ${commit}`, `git checkout ${commit}`];
     await aexec([
         `git clone --depth=1 ${repo} ${location}`,
         `cd ${location}`,
         ...flags
-    ].join(" && "), { 
+    ].join(" && "), {
         cwd: root,
         env: {
             ...process.env,
@@ -49,16 +49,17 @@ log("Depot Tools", "cloned");
 await fs.promises.copyFile(path.join(buildDir, "dawn", "scripts", "standalone-with-node.gclient"), path.join(buildDir, "dawn", ".gclient"));
 
 log("Dawn", "installing dependencies");
+const sep = platform == "win32" ? `;` : ":";
 await aexec(`gclient sync --no-history -j${os.cpus().length} -vvv`,
-{
-    cwd: path.join(buildDir, "dawn"), 
-    env: {
-        ...process.env,
-        PATH: `${path.join(buildDir, "depot_tools")}:${process.env.PATH}`,
-        DEPOT_TOOLS_UPDATE: '0',
-        DEPOT_TOOLS_WIN_TOOLCHAIN: '0',
-    }
-});
+    {
+        cwd: path.join(buildDir, "dawn"),
+        env: {
+            ...process.env,
+            PATH: `${path.join(buildDir, "depot_tools")}${sep}${process.env.PATH}`,
+            DEPOT_TOOLS_UPDATE: '0',
+            DEPOT_TOOLS_WIN_TOOLCHAIN: '0',
+        }
+    });
 log("Dawn", "installed dependencies");
 
 let cflags = "";
@@ -88,15 +89,15 @@ log("Dawn", "built");
 
 log("Dawn", "running ninja");
 try {
-const {stdout} = await aexec(`ninja -C ${path.join(outDir, "dawn")} -j${os.cpus().length} dawn.node`, {
-    cwd: root,
-    env: {
-        ...process.env,
-        DEPOT_TOOLS_WIN_TOOLCHAIN: '0'
-    }
-});
-log("Dawn", "finished ninja");
-} catch(e) {
+    const { stdout } = await aexec(`ninja -C ${path.join(outDir, "dawn")} -j${os.cpus().length} dawn.node`, {
+        cwd: root,
+        env: {
+            ...process.env,
+            DEPOT_TOOLS_WIN_TOOLCHAIN: '0'
+        }
+    });
+    log("Dawn", "finished ninja");
+} catch (e) {
     console.error("[Dawn] error: ", e);
     process.exit(1);
 }
