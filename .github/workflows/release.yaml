@@ -32,7 +32,7 @@ jobs:
           INCLUDE="${{ env.WINSDK }}/Include/${{ env.WINSDK_VERS }}/um;${{ env.WINSDK }}/Include/${{ env.WINSDK_VERS }}/shared;${{ env.WINSDK }}/Include/${{ env.WINSDK_VERS }}/winrt;${{ env.WINSDK }}/Include/${{ env.WINSDK_VERS }}/ucrt;${{ env.MSVC }}/include"
           echo "INCLUDE=$INCLUDE" >> $GITHUB_ENV
           choco install ninja
-      - if: ${{ matrix.platform.name == 'MacOS'}}
+      - if: ${{ startsWith(matrix.platform.name, 'MacOS' ) }}
         name: Install Mac Dependencies
         run: |
           brew install ninja
@@ -53,5 +53,6 @@ jobs:
         run: npm run build
       - name: Create Release
         env:
+          TARGET_ARCH: ${{ matrix.platform.arch }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run release
