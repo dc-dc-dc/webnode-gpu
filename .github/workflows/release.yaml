@@ -35,8 +35,9 @@ jobs:
             libxcursor-dev \
             libxi-dev \
             ninja-build
-      - env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build
         run: npm run build
       - name: Create Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run release
