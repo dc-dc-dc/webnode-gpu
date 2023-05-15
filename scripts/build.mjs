@@ -12,11 +12,11 @@ const { platform } = process;
 const versions = {
     "dawn": {
         "repo": "https://dawn.googlesource.com/dawn",
-        "version": "906fc9df206d668191e9660a16688e27eb3d97ce"
+        "version": "36aa48ce36053a10993f6eae1ad1224b7a912abf"
     },
     "depot_tools": {
         "repo": "https://chromium.googlesource.com/chromium/tools/depot_tools.git",
-        "version": "a1e578320b09a600894b6b11bc4e7d5f31627c6c"
+        "version": "42515353c9edfe0ef0b7318fe81b59a530ba3d3c"
     }
 };
 
@@ -83,7 +83,7 @@ await fs.promises.copyFile(path.join(buildDir, "dawn", "scripts", "standalone-wi
 
 log("Dawn", `installing dependencies ${sep}`);
 
-await aexec(`gclient sync --no-history -j${os.cpus().length} -vvv `,
+const {stdout, stderr} = await aexec(`gclient sync --no-history -j${os.cpus().length} -vvv `,
     {
         cwd: dawnDir,
         env: {
@@ -93,17 +93,19 @@ await aexec(`gclient sync --no-history -j${os.cpus().length} -vvv `,
             DEPOT_TOOLS_WIN_TOOLCHAIN: '0',
         }
     });
+console.log(stdout);
+console.log(stderr);
+
 log("Dawn", "installed dependencies");
 
  
-let cflags = (isMac && targetArch) ? "-mmacosx-version-min=11.0" : "";
-let ldflags = (isMac && targetArch) ? "-mmacosx-version-min=11.0" : "";
+let cflags = ""; //(isMac && targetArch) ? "-mmacosx-version-min=11.0" : "";
+let ldflags = ""; // (isMac && targetArch) ? "-mmacosx-version-min=11.0" : "";
 const flags = [
     `-S ${path.join(buildDir, "dawn")}`,
     `-B ${path.join(outDir, "dawn")}`,
     '-GNinja',
     '-DCMAKE_BUILD_TYPE=Release',
-    '-DDAWN_ENABLE_PIC=1',
     '-DDAWN_BUILD_NODE_BINDINGS=1',
     '-DTINT_BUILD_SAMPLES=0',
     '-DTINT_BUILD_TESTS=0',
@@ -112,7 +114,7 @@ const flags = [
 ];
 
 log("Dawn", "building");
-await aexec(`cmake ${flags.join(' ')}`, {
+const cmakeBuild = await aexec(`cmake ${flags.join(' ')}`, {
     cwd: root,
     env: {
         ...process.env,
@@ -120,17 +122,21 @@ await aexec(`cmake ${flags.join(' ')}`, {
         ldflags,
     }
 })
+console.log(cmakeBuild.stdout);
+console.log(cmakeBuild.stderr);
 log("Dawn", "built");
 
 log("Dawn", "running ninja");
 try {
-    const { stdout } = await aexec(`ninja -C ${path.join(outDir, "dawn")} -j${os.cpus().length} dawn.node`, {
+    const ninja = await aexec(`ninja -C ${path.join(outDir, "dawn")} -j${os.cpus().length} dawn.node`, {
         cwd: root,
         env: {
             ...process.env,
             DEPOT_TOOLS_WIN_TOOLCHAIN: '0'
         }
     });
+    console.log(ninja.stdout);
+    console.log(ninja.stderr);
     log("Dawn", "finished ninja");
 } catch (e) {
     console.error("[Dawn] error: ", e);

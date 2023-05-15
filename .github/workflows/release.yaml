@@ -1,6 +1,9 @@
 name: Release
 
-on: workflow_dispatch
+on:
+  push:
+    tags:
+      - 'v*.*.*' 
 
 jobs:
   build:
@@ -10,7 +13,7 @@ jobs:
       matrix:
         platform:
           - { name: "Linux", os: ubuntu-22.04 }
-          - { name: "Windows", os: windows-2022 }
+          # - { name: "Windows", os: windows-2022 }
           - { name: "MacOS", os: macos-12 }
           - { name: "MacOS (arm)", os: macos-12, arch: arm64 }
     runs-on: ${{ matrix.platform.os }}
