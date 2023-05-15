@@ -64,5 +64,6 @@ const res = await fetch(assetURL, {
 log("upload", `upload got status ${res.status} ${res.statusText}`)
 
 if (res.status !== 201) {
-    throw new Error(`unexpected status ${res.status} ${res.statusText}`);
+    const data = await res.text();
+    throw new Error(`unexpected status ${res.status} ${res.statusText} ${data}`);
 }
