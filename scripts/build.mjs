@@ -24,9 +24,11 @@ async function downloadPkg(location, repo, commit, force=false) {
     }
     await fs.promises.rm(location, { recursive: true }).catch(() => {}); 
     await fs.promises.mkdir(location, { recursive: true });
+    const flags = commit == "HEAD" ? [] : [`git fetch --depth=1 origin ${commit}`, `git checkout ${commit}`];
     await aexec([
         `git clone --depth=1 ${repo} ${location}`,
-        `git checkout ${commit}`
+        `cd ${location}`,
+        ...flags
     ].join(" && "), { 
         cwd: root,
         env: {
@@ -37,7 +39,7 @@ async function downloadPkg(location, repo, commit, force=false) {
 
 // Download dawn and depot_tools
 log("Dawn", "cloning");
-await downloadPkg(path.join(buildDir, "dawn"), "https://dawn.googlesource.com/dawn", "HEAD", false);
+await downloadPkg(path.join(buildDir, "dawn"), "https://dawn.googlesource.com/dawn", "906fc9df206d668191e9660a16688e27eb3d97ce", false);
 log("Dawn", "cloned");
 log("Depot Tools", "cloning");
 await downloadPkg(path.join(buildDir, "depot_tools"), "https://chromium.googlesource.com/chromium/tools/depot_tools.git", "HEAD", false);
@@ -85,7 +87,8 @@ await aexec(`cmake ${flags.join(' ')}`, {
 log("Dawn", "built");
 
 log("Dawn", "running ninja");
-await aexec(`ninja -C ${path.join(outDir, "dawn")} -j${os.cpus().length} dawn.node`, {
+try {
+const {stdout} = await aexec(`ninja -C ${path.join(outDir, "dawn")} -j${os.cpus().length} dawn.node`, {
     cwd: root,
     env: {
         ...process.env,
@@ -93,5 +96,8 @@ await aexec(`ninja -C ${path.join(outDir, "dawn")} -j${os.cpus().length} dawn.no
     }
 });
 log("Dawn", "finished ninja");
-
+} catch(e) {
+    console.error("[Dawn] error: ", e);
+    process.exit(1);
+}
 await fs.promises.copyFile(path.join(outDir, "dawn", "dawn.node"), path.join(root, "dawn.node"));
