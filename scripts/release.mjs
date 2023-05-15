@@ -29,7 +29,8 @@ const gitHeaders = {
 
 const buff = await fs.promises.readFile(path.resolve(root, name));
 
-await fetch(`https://api.github.com/repos/dc-dc-dc/webnode-gpu/releases/v0.0.4a/assets/?name=${name}`, {
+console.log(`[Upload] uploading ${name} to ${pkg.version}`);
+const res = await fetch(`https://api.github.com/repos/dc-dc-dc/webnode-gpu/releases/${pkg.version}/assets/?name=${name}`, {
     method: "POST",
     headers: {
         ...gitHeaders,
@@ -37,3 +38,9 @@ await fetch(`https://api.github.com/repos/dc-dc-dc/webnode-gpu/releases/v0.0.4a/
     },
     body: buff,
 });
+
+console.log(`[Upload] got status ${res.status} ${res.statusText}`)
+
+if (res.status !== 200) {
+    throw new Error(`unexpected status ${res.status} ${res.statusText}`);
+}
