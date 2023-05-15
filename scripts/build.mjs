@@ -23,6 +23,8 @@ const versions = {
 const root = path.resolve(__dirname, "../");
 const buildDir = path.resolve(root, "build");
 const outDir = path.resolve(root, "out");
+const dawnDir = path.resolve(buildDir, "dawn");
+const depotDir = path.resolve(buildDir, "depot");
 
 function log(step, status) {
     console.log(`[${step}] ${new Date().toISOString()} ${status}`);
@@ -50,23 +52,24 @@ async function downloadPkg(location, repo, commit, force = false) {
 
 // Download dawn and depot_tools
 log("Dawn", "cloning");
-await downloadPkg(path.join(buildDir, "dawn"), versions.dawn.repo, versions.dawn.version, false);
+await downloadPkg(dawnDir, versions.dawn.repo, versions.dawn.version, false);
 log("Dawn", "cloned");
 log("Depot Tools", "cloning");
-await downloadPkg(path.join(buildDir, "depot_tools"), versions.dawn.repo, versions.dawn.version, false);
+await downloadPkg(depotDir, versions.depot_tools.repo, versions.depot_tools.version, false);
 log("Depot Tools", "cloned");
 
 // Install dependencies
 await fs.promises.copyFile(path.join(buildDir, "dawn", "scripts", "standalone-with-node.gclient"), path.join(buildDir, "dawn", ".gclient"));
 
-log("Dawn", "installing dependencies");
 const sep = platform == "win32" ? `;` : ":";
+log("Dawn", `installing dependencies`);
+
 await aexec(`gclient sync --no-history -j${os.cpus().length} -vvv`,
     {
-        cwd: path.join(buildDir, "dawn"),
+        cwd: dawnDir,
         env: {
             ...process.env,
-            PATH: `${path.join(buildDir, "depot_tools")}${sep}${process.env.PATH}`,
+            PATH: `${depotDir}${sep}${process.env.PATH}`,
             DEPOT_TOOLS_UPDATE: '0',
             DEPOT_TOOLS_WIN_TOOLCHAIN: '0',
         }
