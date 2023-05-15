@@ -34,7 +34,7 @@ const gitHeaders = {
     "Accept": "application/vnd.github+json",
     "X-Github-Api-Version": "2022-11-28",
     "Authorization": `Bearer ${process.env.GITHUB_TOKEN}`,
-    "User-Agent": "@dc_dc_dc/webnode-gpu"
+    "User-Agent": "@dc-dc-dc/webnode-gpu"
 }
 
 log("release", "fetching releases");
