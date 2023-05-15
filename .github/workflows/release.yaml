@@ -38,3 +38,5 @@ jobs:
       - env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run build
+      - name: Create Release
+        run: npm run release
