@@ -12,11 +12,11 @@ const { platform } = process;
 const versions = {
     "dawn": {
         "repo": "https://dawn.googlesource.com/dawn",
-        "version": "36aa48ce36053a10993f6eae1ad1224b7a912abf"
+        "version": "464418b24f65fce81114f6af89b611900f988424"
     },
     "depot_tools": {
         "repo": "https://chromium.googlesource.com/chromium/tools/depot_tools.git",
-        "version": "42515353c9edfe0ef0b7318fe81b59a530ba3d3c"
+        "version": "007dd45a94b8fe400fb69113f7999fed185cb5c1"
     }
 };
 
