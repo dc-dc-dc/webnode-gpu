@@ -1,8 +1,13 @@
-# nodegpu, bringing the bindings of webgpu to node
+# webnode-gpu
 
 Brings over the webgpu spec into node, initially done to test compute shader code.
 
 ## Installation
+
+### npm
+```shell
+npm install webnode-gpu
+```
 
 Make sure you have the following dependencies as they are needed to build dawn from source. The build process takes a while, npm install looks like its hanging but thats cmake running.
 
